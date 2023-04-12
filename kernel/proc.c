@@ -124,7 +124,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
-
+  p->init_tick = ticks;
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -680,4 +680,24 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int getProcTick(int pid){
+  struct proc *p;
+  
+  _Atomic uint calcTicks ; 
+  uint currTick = ticks;
+  
+ 
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->pid == pid){
+      calcTicks = currTick - p->init_tick;
+      printf("process %d - init ticks %d\n",pid,p->init_tick);
+      printf("current ticks : %d\n",currTick);
+    }
+    release(&p->lock);
+  
+}
+return calcTicks;
 }
