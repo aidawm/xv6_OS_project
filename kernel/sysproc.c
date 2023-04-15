@@ -5,6 +5,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -96,4 +97,21 @@ sys_getProcTick(void)
   int pid;
   argint(0, &pid);
   return getProcTick(pid);
+}
+
+uint64
+sys_sysinfo(void)
+{
+  uint64 st; // user pointer to struct stat
+
+  argaddr(0, &st);
+  return sysinfo(st);
+
+
+  // printf("here\n");
+  // uint64 info; // user pointer to struct stat
+  // argaddr(0,&info);
+  // printf("here\n");
+  // printf("^^^^^^^^^^^^^^^^\n");
+  // return sysinfo((struct sysinfo_str *)info);
 }

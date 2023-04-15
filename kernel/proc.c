@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "sysinfo.h"
 
 struct cpu cpus[NCPU];
 
@@ -701,3 +702,34 @@ int getProcTick(int pid){
 }
 return calcTicks;
 }
+
+int num_proc(void)
+{
+  int n = 0;
+  struct proc *p;
+
+  for(p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state != UNUSED)
+      ++n;
+    release(&p->lock);
+  }
+
+  return n;
+}
+
+int sysinfo(uint64 addr){
+  struct sysinfo_str st;
+
+  st.uptime= ticks;
+  st.free_memory = free_mem();
+  st.total_ram = memory_size();
+  st.procs = num_proc();
+  if(copyout(myproc()->pagetable, addr, (char *)&st, sizeof(st)) < 0)
+      return -1;
+
+  return 0;
+}
+
+
+
